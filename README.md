@@ -3,11 +3,16 @@
 Implement the following routes:
 
 `POST` `/movies/favorites/{id}`
+
 `DELETE` `/movies/favorites/{id}`
 
+---
+
 `POST` `/series/favorites/{id}`
+
 `DELETE` `/series/favorites/{id}`
 
+---
 Where each `POST` request will add that particular (movie or serial) to the user favorites list (of movies or series)
 AND each `DELETE` request will remove that from their favorite list.
 
