@@ -44,3 +44,33 @@ def get_movie(request, id: UUID4):
         return 200, movie
     except Movie.DoesNotExist:
         return 404, {'msg': 'There is no movie with that id.'}
+
+
+@movies_controller.post('/favorites/{id}', auth=TokenAuthentication(), response={200: MessageOut, 404: MessageOut})
+def add_movie_to_fav(request, id: UUID4):
+    try:
+        user = User.objects.get(id=request.auth['id'])
+        fav_movie = Movie.objects.get(id=id)
+        if Movie.objects.filter(user__id=user.id, id=id):
+            return 200, {'msg': 'Movie already added to your favorite'}
+        else:
+            fav_movie.user.add(user)
+            return 200, {'msg': 'Movie added to the favorite'}
+    except:
+        return 404, {'msg': 'There is an error happened'}
+
+
+@movies_controller.delete('/favorites/{id}', auth=TokenAuthentication(),
+                          response={200: MessageOut, 404: MessageOut})
+def del_movie_from_fav(request, id: UUID4):
+    try:
+
+        user = User.objects.get(id=request.auth['id'])
+        fav_movie = Movie.objects.get(id=id)
+        if Movie.objects.filter(user__id=user.id, id=id):
+            fav_movie.user.remove(user)
+            return 200, {'msg': 'Movie deleted from favorite'}
+        else:
+            return 404, {'msg': 'The movie doesn\'t exist in your favorite list'}
+    except:
+        return 404, {'msg': 'There is an error happened'}
