@@ -3,6 +3,8 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from pydantic.types import UUID4
 
+from django.core.paginator import Paginator
+
 from account.authorization import TokenAuthentication
 from movies.models import Movie
 from movies.schemas.movies import MovieOut

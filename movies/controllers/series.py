@@ -35,7 +35,7 @@ def favorite_series(request):
     series = Serial.objects.filter(user__exact=request.auth['id']).order_by('-rating')
     if series:
         return 200, series
-    return 404, {'msg': 'There are no featured movies.'}
+    return 404, {'msg': 'There are no favorite serial.'}
 
 
 @series_controller.get('/{id}', response={200: FullSerialOut, 404: MessageOut})
