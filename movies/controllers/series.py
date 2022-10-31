@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.paginator import Paginator
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from ninja.pagination import paginate, PageNumberPagination
@@ -15,12 +16,13 @@ User = get_user_model()
 series_controller = Router(tags=['Series'])
 
 
-@series_controller.get('', response={200: list[SerialOut], 404: MessageOut})
-# @paginate(PageNumberPagination)
-def list_series(request):
+@series_controller.get('{p_no}', response={200: list[SerialOut], 404: MessageOut})
+def list_series(request, p_no: int):
     series = Serial.objects.prefetch_related('categories', 'serial_actors').all().order_by('title')
-    if series:
-        return 200, series
+    paginator = Paginator(series, 2)
+    series = paginator.get_page(p_no)
+    if series.object_list:
+        return 200, series.object_list
     return 404, {'msg': 'There are no series yet.'}
 
 
