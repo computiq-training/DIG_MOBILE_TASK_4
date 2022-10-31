@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 from ninja import NinjaAPI
+from ninja.pagination import RouterPaginated
 
 from account.authorization import TokenAuthentication
 from account.views import account_controller
@@ -11,8 +12,8 @@ from movies.controllers.categories import categories_controller
 from movies.controllers.general import home_controller
 from movies.controllers.movies import movies_controller
 from movies.controllers.series import series_controller
-
-api = NinjaAPI()
+api = NinjaAPI(default_router=RouterPaginated())
+#api = NinjaAPI()
 api.add_router('/account', account_controller)
 api.add_router('', home_controller)
 api.add_router('/categories', categories_controller)
