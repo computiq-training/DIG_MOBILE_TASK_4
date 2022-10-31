@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from ninja import Router
 from pydantic.types import UUID4
 
-from django.core.paginator import Paginator
+from ninja.pagination import paginate, PageNumberPagination
 
 from account.authorization import TokenAuthentication
 from movies.models import Movie
@@ -16,6 +16,7 @@ movies_controller = Router(tags=['Movies'])
 
 
 @movies_controller.get('', response={200: list[MovieOut], 404: MessageOut})
+# @paginate(PageNumberPagination)
 def list_movies(request):
     movies = Movie.objects.prefetch_related('categories', 'movie_actors').all()
     if movies:

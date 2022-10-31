@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from ninja import Router
+from ninja.pagination import paginate, PageNumberPagination
 from pydantic.types import UUID4
 
 from account.authorization import TokenAuthentication
@@ -15,6 +16,7 @@ series_controller = Router(tags=['Series'])
 
 
 @series_controller.get('', response={200: list[SerialOut], 404: MessageOut})
+# @paginate(PageNumberPagination)
 def list_series(request):
     series = Serial.objects.prefetch_related('categories', 'serial_actors').all().order_by('title')
     if series:
