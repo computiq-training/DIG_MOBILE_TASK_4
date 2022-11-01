@@ -1,7 +1,10 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from django.core.paginator import Paginator
 from ninja import Router
 from pydantic.types import UUID4
+
+from ninja.pagination import paginate, PageNumberPagination
 
 from account.authorization import TokenAuthentication
 from movies.models import Movie
@@ -44,3 +47,33 @@ def get_movie(request, id: UUID4):
         return 200, movie
     except Movie.DoesNotExist:
         return 404, {'msg': 'There is no movie with that id.'}
+
+@movies_controller.post('/favorites/{id}', auth=TokenAuthentication(), response={200: MessageOut, 404: MessageOut})
+def add_movie_to_fav(request, id: UUID4):
+    try:
+        user = User.objects.get(id=request.auth['id'])
+        fav_movie = Movie.objects.get(id=id)
+        if Movie.objects.filter(user__id=user.id, id=id):
+            return 200, {'msg': 'Movie already added to your favorite'}
+        else:
+            fav_movie.user.add(user)
+            return 200, {'msg': 'Movie added to the favorite'}
+    except:
+        return 404, {'msg': 'There is an error for add favorite'}
+
+
+
+@movies_controller.delete('/favorites/{id}', auth=TokenAuthentication(),
+                          response={200: MessageOut, 404: MessageOut})
+def del_movie_from_fav(request, id: UUID4):
+    try:
+
+        user = User.objects.get(id=request.auth['id'])
+        fav_movie = Movie.objects.get(id=id)
+        if Movie.objects.filter(user__id=user.id, id=id):
+            fav_movie.user.remove(user)
+            return 200, {'msg': 'Movie deleted from favorite'}
+        else:
+            return 404, {'msg': 'The movie not found in your favorite list'}
+    except:
+        return 404, {'msg': 'There is an error for delete favorite'}
