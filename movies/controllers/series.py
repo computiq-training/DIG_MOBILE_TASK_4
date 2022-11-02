@@ -79,3 +79,18 @@ def get_episodes(request, serial_id: UUID4, season_id: UUID4, episode_id: UUID4)
         return 404, {'msg': 'There is no season with that id.'}
     except Episode.DoesNotExist:
         return 404, {'msg': 'There is no episode that matches the criteria.'}
+
+@series_controller.post('/favorite/{id}', auth=TokenAuthentication(), response={200: MessageOut, 404: MessageOut})
+def post_serial(request, id: UUID4):
+    serial = get_object_or_404(serial, id=id)
+    user = get_object_or_404(User, id=request.auth['id'])
+    serial.user.add(user)
+    return 200, {'msg': 'serial added to favorites.'}
+
+
+@series_controller.delete('/favorite/{id}', auth=TokenAuthentication(), response={200: MessageOut, 404: MessageOut})
+def delete_serial(request, id: UUID4):
+    serial = get_object_or_404(serial, id=id)
+    user = get_object_or_404(User, id=request.auth['id'])
+    serial.user.remove(user)
+    return 200, {'msg': 'serial removed from favorites.'}
