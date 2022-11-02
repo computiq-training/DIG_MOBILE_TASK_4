@@ -14,7 +14,7 @@ class MovieOut(Schema):
     description: str
     image: str
     thumbnail: str
-    trailer_url: Optional = str
+    trailer_url:  str = Optional
     release_date: datetime.date
     rating: Decimal
     categories: list[CategoryOut]

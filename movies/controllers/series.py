@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from pydantic.types import UUID4
-
+from django.core.paginator import Paginator
 from account.authorization import TokenAuthentication
 from movies.models import Serial, Season, Episode
 from movies.schemas.episodes import EpisodeOut
@@ -13,12 +13,13 @@ from utils.schemas import MessageOut
 User = get_user_model()
 series_controller = Router(tags=['Series'])
 
-
-@series_controller.get('', response={200: list[SerialOut], 404: MessageOut})
-def list_series(request):
+@series_controller.get('{p_no}', response={200: list[SerialOut], 404: MessageOut})
+def list_series(request, p_no: int):
     series = Serial.objects.prefetch_related('categories', 'serial_actors').all().order_by('title')
-    if series:
-        return 200, series
+    paginator = Paginator(series, 2)
+    series = paginator.get_page(p_no)
+    if series.object_list:
+        return 200, series.object_list
     return 404, {'msg': 'There are no series yet.'}
 
 
@@ -79,3 +80,32 @@ def get_episodes(request, serial_id: UUID4, season_id: UUID4, episode_id: UUID4)
         return 404, {'msg': 'There is no season with that id.'}
     except Episode.DoesNotExist:
         return 404, {'msg': 'There is no episode that matches the criteria.'}
+
+@series_controller.post('/favorites/{id}', auth=TokenAuthentication(), response={200: MessageOut, 404: MessageOut})
+def add_serial_to_favorites(request, id: UUID4):
+    try:
+        user = User.objects.get(id=request.auth['id'])
+        fav_serial = Serial.objects.get(id=id)
+        if Serial.objects.filter(user__id=user.id, id=id):
+            return 200, {'msg': 'Serial already added to your favorite'}
+        else:
+            fav_serial.user.add(user)
+            return 200, {'msg': 'Serial added to the favorite successfully'}
+    except:
+        return 404, {'msg': 'Something went wrong..'}
+
+
+@series_controller.delete('/favorites/{id}', auth=TokenAuthentication(),
+                          response={200: MessageOut, 404: MessageOut})
+def del_serial_from_fav(request, id: UUID4):
+    try:
+
+        user = User.objects.get(id=request.auth['id'])
+        fav_serial = Serial.objects.get(id=id)
+        if Serial.objects.filter(user__id=user.id, id=id):
+            fav_serial.user.remove(user)
+            return 200, {'msg': 'Serial deleted from favorite'}
+        else:
+            return 404, {'msg': 'The serial not found in your favorite list'}
+    except:
+        return 404, {'msg': 'Something went wrong..'}

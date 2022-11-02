@@ -10,8 +10,8 @@ class EpisodeOut(Schema):
     id: UUID4
     title: str
     description: str
-    trailer_url: Optional = str
+    trailer_url:  str = Optional
     release_date: datetime.date
     rating: Decimal
-    actors: Optional = list[ActorOut]
+    actors: list[ActorOut] = Optional 
     image: str
