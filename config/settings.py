@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'movies',
     'silk',
     'django_extensions',
+    'django_pagination_bootstrap'
 
 ]
 
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django_pagination_bootstrap.middleware.PaginationMiddleware"
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -71,6 +73,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "django.template.context_processors.request"
             ],
         },
     },

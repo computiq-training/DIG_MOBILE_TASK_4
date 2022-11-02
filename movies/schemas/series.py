@@ -14,7 +14,7 @@ class SerialOut(Schema):
     description: str
     image: str = None
     thumbnail: str = None
-    trailer_url: Optional = str
+    trailer_url:  str = Optional
     release_date: datetime.date
     rating: Decimal
     categories: list[CategoryOut]
