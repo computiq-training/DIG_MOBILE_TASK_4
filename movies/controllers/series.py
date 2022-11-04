@@ -88,10 +88,10 @@ def favorite_series_add(request, id: UUID4):
         user=User.objects.get(id=requests.auth['id'])
         series=Serial.objects.get(id=id)
         if Serial.objects.filter(id_user=user.id,id=id):
-            return 200,{'msg': 'series added to your favorites'}
+            return 201,{'msg': 'series added to your favorites'}
         else:
             series.user.add(user)
-            return 200, {'msg': 'series added to your favorites'}
+            return 201, {'msg': 'series added to your favorites'}
     except:
         return 404, {'msg': 'series is not added to your favorites'}
 
@@ -102,7 +102,7 @@ def favorite_series_del(request, id: UUID4):
         series = Serial.objects.get(id=id)
         if Serial.objects.filter(id_user=user.id, id=id):
             series.user.remove(user)
-            return 200, {'msg': 'movies deleted from your favorites'}
+            return 201, {'msg': 'movies deleted from your favorites'}
         else:
             return 404, {'msg': 'series not deleted from your favorites'}
     except:
