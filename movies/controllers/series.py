@@ -14,19 +14,20 @@ User = get_user_model()
 series_controller = Router(tags=['Series'])
 
 
-@series_controller.get('', response={200: list[SerialOut], 404: MessageOut})
+@series_controller.get('', response={201: list[SerialOut], 404: MessageOut})
 def list_series(request):
+
     series = Serial.objects.prefetch_related('categories', 'serial_actors').all().order_by('title')
     if series:
-        return 200, series
+        return 201, series
     return 404, {'msg': 'There are no series yet.'}
 
 
-@series_controller.get('/featured', response={200: list[SerialOut], 404: MessageOut})
+@series_controller.get('/featured', response={201: list[SerialOut], 404: MessageOut})
 def featured_series(request):
     series = Serial.objects.filter(is_featured=True).order_by('-rating')
     if series:
-        return 200, series
+        return 201, series
     return 404, {'msg': 'There are no featured series.'}
 
 
@@ -79,3 +80,31 @@ def get_episodes(request, serial_id: UUID4, season_id: UUID4, episode_id: UUID4)
         return 404, {'msg': 'There is no season with that id.'}
     except Episode.DoesNotExist:
         return 404, {'msg': 'There is no episode that matches the criteria.'}
+
+
+@series_controller.post('/favorites/{id}',auth=TokenAuthentication(), response={201: MessageOut, 404: MessageOut})
+def favorite_series_add(request, id: UUID4):
+    try:
+        user=User.objects.get(id=requests.auth['id'])
+        series=Serial.objects.get(id=id)
+        if Serial.objects.filter(id_user=user.id,id=id):
+            return 200,{'msg': 'series added to your favorites'}
+        else:
+            series.user.add(user)
+            return 200, {'msg': 'series added to your favorites'}
+    except:
+        return 404, {'msg': 'series is not added to your favorites'}
+
+@series_controller.delete('/favorites/{id}',auth=TokenAuthentication(), response={201: MessageOut, 404: MessageOut})
+def favorite_series_del(request, id: UUID4):
+    try:
+        user = User.objects.get(id=requests.auth['id'])
+        series = Serial.objects.get(id=id)
+        if Serial.objects.filter(id_user=user.id, id=id):
+            series.user.remove(user)
+            return 200, {'msg': 'movies deleted from your favorites'}
+        else:
+            return 404, {'msg': 'series not deleted from your favorites'}
+    except:
+        return 404, {'msg': 'there is error in  your favorites'}
+
