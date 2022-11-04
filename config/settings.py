@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'movies',
     'silk',
     'django_extensions',
-
 ]
 
 MIDDLEWARE = [

@@ -9,9 +9,11 @@ from movies.schemas.episodes import EpisodeOut
 from movies.schemas.seasons import SeasonOut
 from movies.schemas.series import SerialOut, FullSerialOut
 from utils.schemas import MessageOut
+from ninja.pagination import paginate, PageNumberPagination
 
 User = get_user_model()
 series_controller = Router(tags=['Series'])
+
 
 
 @series_controller.get('', response={200: list[SerialOut], 404: MessageOut})
@@ -36,6 +38,40 @@ def favorite_series(request):
     if series:
         return 200, series
     return 404, {'msg': 'There are no featured movies.'}
+
+
+#add movie that from their favorite list
+@series_controller.post('/series/favorites/{id}', auth=TokenAuthentication(), response={200: MessageOut, 404: MessageOut})
+def favorite_Add_movies(request,id: UUID4):
+    user = User.objects.get(id=request.auth['id'])
+    serial=Serial.objects.get(id=id)
+    if Serial.objects.filter(user__id=user.id, id=id):
+
+        return 200, {'msg': 'serial already add'}
+    else:
+        serial.user.add(user)
+        return 200, {'msg': 'serial add successfully'}
+
+
+#remove movie that from their favorite list
+@series_controller.delete('/series/favorites/{id}', auth=TokenAuthentication(), response={200: MessageOut, 404: MessageOut})
+def favorite_delet_movies(request,id: UUID4):
+    user = User.objects.get(id=request.auth['id'])
+    serial=Serial.objects.get(id=id)
+    if Serial.objects.filter(user__id=user.id, id=id):
+        serial.user.remove(user)
+        return 200, {'msg': 'serial deleted successfully'}
+    else:
+        serial.user.remove(user)
+        return 200, {'msg': 'serial already deleted'}
+
+#listing Serials
+@series_controller.get('/', response=list[SerialOut])
+@paginate(PageNumberPagination,page_size=4)
+def listing_series(request):
+    return Serial.objects.all()
+
+
 
 
 @series_controller.get('/{id}', response={200: FullSerialOut, 404: MessageOut})
