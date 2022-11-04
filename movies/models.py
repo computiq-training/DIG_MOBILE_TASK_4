@@ -69,6 +69,10 @@ class Movie(CommonDetail):
     def actors(self):
         return self.movie_actors.all()
 
+    # @property
+    # def users(self):
+    #     return self.user.all()
+
 
 class Serial(CommonDetail):
     is_featured = models.BooleanField(default=False)
