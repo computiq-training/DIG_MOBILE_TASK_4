@@ -12,7 +12,9 @@ from movies.controllers.general import home_controller
 from movies.controllers.movies import movies_controller
 from movies.controllers.series import series_controller
 
-api = NinjaAPI()
+from ninja.pagination import RouterPaginated
+
+api = NinjaAPI(default_router= RouterPaginated())
 api.add_router('/account', account_controller)
 api.add_router('', home_controller)
 api.add_router('/categories', categories_controller)
