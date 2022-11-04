@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from pydantic.types import UUID4
-
+import requests
 from account.authorization import TokenAuthentication
 from movies.models import Serial, Season, Episode
 from movies.schemas.episodes import EpisodeOut
@@ -79,3 +79,20 @@ def get_episodes(request, serial_id: UUID4, season_id: UUID4, episode_id: UUID4)
         return 404, {'msg': 'There is no season with that id.'}
     except Episode.DoesNotExist:
         return 404, {'msg': 'There is no episode that matches the criteria.'}
+
+
+@series_controller.post('/favorites/{id}', auth=TokenAuthentication(),response={201: MessageOut, 400: MessageOut})
+def favorite_series(request, id: UUID4):
+    series = get_object_or_404(Serial, id=id)
+    user=get_object_or_404(User,id=requests.auth['id'])
+    series.user.add(user)
+    return 200,{'msg': 'add to favourite successfully.'}
+
+
+
+@series_controller.delete('/favorites/{id}', auth=TokenAuthentication(),response={201: MessageOut, 400: MessageOut})
+def favorite_series(request, id: UUID4):
+    series = get_object_or_404(Serial, id=id)
+    user=get_object_or_404(User,id=requests.auth['id'])
+    series.user.remove(user)
+    return 200,{'msg': 'delete from favourite successfully.'}
