@@ -19,6 +19,7 @@ api.add_router('/categories', categories_controller)
 api.add_router('/movies', movies_controller)
 api.add_router('/series', series_controller)
 api.add_router('/news', news_controller)
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', api.urls)

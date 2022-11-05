@@ -18,7 +18,6 @@ AND each `DELETE` request will remove that from their favorite list.
 
 ----
 ----
-
 #### BONUS TASK
 
 Implement Pagination for the routes that are listing movies or series.
