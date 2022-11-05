@@ -37,6 +37,22 @@ def favorite_series(request):
         return 200, series
     return 404, {'msg': 'There are no featured movies.'}
 
+@series_controller.post('/favorites/{id}', auth=TokenAuthentication(), response={200: list[SerialOut], 404: MessageOut})
+def favorite_movies(request,id: UUID4):
+    series = Serial.objects.get(id=id)
+    series.save()
+    if series:
+        return 200, series
+    return 404, {'msg': 'There add favorites is unsuccessful.'}
+@series_controller.delete('/favorites/{id}', auth=TokenAuthentication(), response={200: list[SerialOut], 404: MessageOut})
+def favorite_movies(request,id: UUID4):
+    series = Serial.objects.all()
+    series = Serial.objects.get(id=id)
+    series.delete()
+    if series:
+        return 200, series
+    return 404, {'msg': 'There are delete favorites unsuccessful.'}
+
 
 @series_controller.get('/{id}', response={200: FullSerialOut, 404: MessageOut})
 def get_serial(request, id: UUID4):
