@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from ninja import Router
 from pydantic.types import UUID4
+from django.core.paginator import Paginator
 
 from account.authorization import TokenAuthentication
 from movies.models import Serial, Season, Episode
@@ -19,6 +20,15 @@ def list_series(request):
     series = Serial.objects.prefetch_related('categories', 'serial_actors').all().order_by('title')
     if series:
         return 200, series
+    return 404, {'msg': 'There are no series yet.'}
+
+@series_controller.get('{p_no}', response={200: list[SerialOut], 404: MessageOut})
+def list_series(request, p_no: int):
+    if series:
+        paginator = Paginator(series, 4)
+    series = paginator.get_page(p_no)
+    if series.object_list:
+        return 200, series.object_list
     return 404, {'msg': 'There are no series yet.'}
 
 
