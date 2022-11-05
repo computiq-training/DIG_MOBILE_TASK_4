@@ -35,7 +35,7 @@ def favorite_series(request):
     series = Serial.objects.filter(user__exact=request.auth['id']).order_by('-rating')
     if series:
         return 200, series
-    return 404, {'msg': 'There are no featured movies.'}
+    return 404, {'msg': 'There are no favorite serial.'}
 
 
 @series_controller.get('/{id}', response={200: FullSerialOut, 404: MessageOut})
@@ -79,3 +79,32 @@ def get_episodes(request, serial_id: UUID4, season_id: UUID4, episode_id: UUID4)
         return 404, {'msg': 'There is no season with that id.'}
     except Episode.DoesNotExist:
         return 404, {'msg': 'There is no episode that matches the criteria.'}
+
+@series_controller.post('/favorites/{id}', auth=TokenAuthentication(), response={200: MessageOut, 404: MessageOut})
+def add_serial_to_fav(request, id: UUID4):
+    try:
+        user = User.objects.get(id=request.auth['id'])
+        fav_serial = Serial.objects.get(id=id)
+        if Serial.objects.filter(user__id=user.id, id=id):
+            return 200, {'msg': 'Serial already added to your favorite'}
+        else:
+            fav_serial.user.add(user)
+            return 200, {'msg': 'Serial added to the favorite'}
+    except:
+        return 404, {'msg': 'There is an error happened'}
+
+
+@series_controller.delete('/favorites/{id}', auth=TokenAuthentication(),
+                          response={200: MessageOut, 404: MessageOut})
+def del_serial_from_fav(request, id: UUID4):
+    try:
+
+        user = User.objects.get(id=request.auth['id'])
+        fav_serial = Serial.objects.get(id=id)
+        if Serial.objects.filter(user__id=user.id, id=id):
+            fav_serial.user.remove(user)
+            return 200, {'msg': 'Serial deleted from favorite'}
+        else:
+            return 404, {'msg': 'The Serial doesn\'t exist in your favorite list'}
+    except:
+        return 404, {'msg': 'There is an error happened'}
