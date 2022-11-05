@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from movies.schemas.favorite import FavoriteOut
 from ninja import Router
 from pydantic.types import UUID4
 from ninja.pagination import paginate, PageNumberPagination
